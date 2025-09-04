@@ -391,7 +391,7 @@ export default function RoadmapPage() {
 
   const fetchDeletedFeatures = async () => {
     try {
-      const response = await fetch(`/api/roadmap/${roadmapId}?status=deleted`)
+      const response = await fetch(`/api/roadmap/${roadmapId}?featureStatus=deleted`)
       if (response.ok) {
         const data = await response.json()
         setDeletedFeatures(data)

@@ -64,9 +64,9 @@ export class FeatureService {
     });
   }
 
-  async findFeatureById(id: string): Promise<Feature | null> {
+  async findFeature(filters: Prisma.FeatureWhereUniqueInput): Promise<Feature | null> {
     return this.prisma.feature.findUnique({
-      where: { id },
+      where: filters,
       include: this.defaultInclude,
     });
   }

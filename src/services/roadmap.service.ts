@@ -72,9 +72,9 @@ export class RoadmapService {
     });
   }
 
-  async findRoadmapById(id: string): Promise<Roadmap | null> {
+  async findRoadmap(where: Prisma.RoadmapWhereUniqueInput): Promise<Roadmap | null> {
     return this.prisma.roadmap.findUnique({
-      where: { id },
+      where: { ...where, deletedAt: null },
       include: this.defaultInclude,
     });
   }
@@ -110,13 +110,14 @@ export class RoadmapService {
     }
 
     // Type assertion for the new embed fields
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const roadmapWithEmbed = roadmap as any;
 
     return {
       id: roadmap.id,
       name: roadmap.name,
       createdAt: roadmap.createdAt,
-      features: roadmap.features.map(feature => ({
+      features: roadmap.features.map((feature) => ({
         id: feature.id,
         title: feature.title,
         description: feature.description,
@@ -126,22 +127,6 @@ export class RoadmapService {
       })),
       embedStyles: (roadmapWithEmbed.embedStyles as EmbedStyles) || {},
     };
-  }
-
-  async updateEmbedConfig(
-    id: string,
-    config: {
-      embedStyles: EmbedStyles;
-    }
-  ): Promise<Roadmap | null> {
-    // Use type assertion for the new embed fields
-    return this.prisma.roadmap.update({
-      where: { id, deletedAt: null },
-      data: {
-        embedStyles: config.embedStyles,
-      } as any,
-      include: this.defaultInclude,
-    });
   }
 
   async updateRoadmap(

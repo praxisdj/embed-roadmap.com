@@ -5,23 +5,27 @@ import { ForbiddenError } from "@/lib/utils/errors";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { UpdateRoadmapSchema } from "@/types/roadmap.type";
-import { Status } from "@/types/status.type";
 const service = new RoadmapService();
 
 export const GET = apiHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const session = await getServerSession(authOptions);
-  const status = req.nextUrl.searchParams.get("status");
 
   if (!session?.user?.id) {
     throw new ForbiddenError("Unauthorized. Please login to continue.");
   }
 
   const { id: roadmapId } = await params;
+  const featureStatus = req.nextUrl.searchParams.get("featureStatus");
 
-  const roadmap = await service.findRoadmaps({
-    id: roadmapId,
-    ...(status ? { features: { some: { status: status as Status } } } : {}),
-  });
+  let roadmap;
+  if (featureStatus) {
+    roadmap = await service.findRoadmap({
+      id: roadmapId,
+      features: { some: { status: featureStatus } },
+    });
+  } else {
+    roadmap = await service.findRoadmap({ id: roadmapId });
+  }
 
   if (!roadmap) {
     return NextResponse.json({ error: "Roadmap not found" }, { status: 404 });
@@ -50,7 +54,7 @@ export const PATCH = apiHandler(async (req: NextRequest, { params }: { params: P
   }
 
   // Check if user has access to this roadmap
-  const roadmap = await service.findRoadmapById(roadmapId);
+  const roadmap = await service.findRoadmap({ id: roadmapId });
   if (!roadmap) {
     return NextResponse.json({ error: "Roadmap not found" }, { status: 404 });
   }
