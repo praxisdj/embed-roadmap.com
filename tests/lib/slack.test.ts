@@ -8,7 +8,7 @@ const mockPostMessage = mock(() =>
 );
 
 // Mock the @slack/web-api module
-mock.module("@slack/web-api", () => ({
+void mock.module("@slack/web-api", () => ({
   WebClient: class MockWebClient {
     chat = {
       postMessage: mockPostMessage,

@@ -26,6 +26,8 @@ export const Status = {
   }
 };
 
+export const statusKeys = Object.keys(Status) as (keyof typeof Status)[];
+
 export const statusConfig = Object.fromEntries(
   Object.entries(Status).map(([key, config]) => [
     key,
