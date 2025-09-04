@@ -1,53 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiHandler } from "@/lib/utils/apiHandler";
+import { apiHandler, validateSession } from "@/lib/utils/apiHandler";
 import { CreateRoadmapSchema } from "@/types/roadmap.type";
 import { RoadmapService } from "@/services/roadmap.service";
-import { ForbiddenError, ValidationError } from "@/lib/utils/errors";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { ValidationError } from "@/lib/utils/errors";
+
+export const GET = apiHandler(getHandler);
+export const POST = apiHandler(postHandler);
+export const DELETE = apiHandler(deleteHandler);
 
 const service = new RoadmapService();
 
-export const GET = apiHandler(async () => {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new ForbiddenError("Unauthorized. Please login to continue.");
-  }
-
-  const roadmaps = await service.findRoadmaps({
-    users: {
-      some: {
-        id: session.user.id,
-      },
-    },
-  });
+async function getHandler() {
+  const session = await validateSession();
+  const roadmaps = await service.findRoadmaps(session.user.id);
   return NextResponse.json(roadmaps, { status: 200 });
-});
+}
 
-export const POST = apiHandler(async (req: NextRequest) => {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new ForbiddenError("Unauthorized. Please login to continue.");
-  }
-
+async function postHandler(req: NextRequest) {
+  const session = await validateSession();
   const body = await req.json();
 
-  // Ensure the current user is included in the users array
-  const bodyWithUser = {
-    ...body,
-    users: body.users
-      ? [...new Set([...body.users, session.user.id])]
-      : [session.user.id],
-  };
-
-  const validatedBody = CreateRoadmapSchema.safeParse(bodyWithUser);
+  const validatedBody = CreateRoadmapSchema.safeParse(body);
 
   if (!validatedBody.success) {
     throw new ValidationError(validatedBody.error.issues);
   }
 
-  const roadmap = await service.createRoadmap(validatedBody.data);
+  const roadmap = await service.createRoadmap(session.user.id, validatedBody.data);
   return NextResponse.json(roadmap, { status: 201 });
-});
+}
+
+async function deleteHandler(req: NextRequest) {
+  const session = await validateSession();
+  const { id } = await req.json();
+  await service.deleteRoadmap(session.user.id, id);
+  return NextResponse.json({ message: "Roadmap deleted" }, { status: 200 });
+}

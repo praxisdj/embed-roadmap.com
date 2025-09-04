@@ -90,7 +90,11 @@ class SmartLogger {
     consoleLogger.error(`${prefix} ${errorMessage}`);
 
     if (meta) {
-      consoleLogger.error(`┗ Error metadata: ${JSON.stringify(meta)}`);
+      consoleLogger.error(`┗ Request metadata: ${JSON.stringify(meta)}`);
+    }
+
+    if (error instanceof AppError && error.meta) {
+      consoleLogger.error(`┗ Error metadata: ${JSON.stringify(error.meta)}`);
     }
 
     if (stackTrace && isCriticalError) {

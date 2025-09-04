@@ -18,9 +18,9 @@ export class AccessService {
   ): Promise<void> {
     let usersWithAccess: string[] = [];
     if (roadmapId) {
-      const roadmap = await this.roadmapService.findRoadmap({ id: roadmapId });
+      const roadmap = await this.roadmapService.findRoadmap(userId, { id: roadmapId });
       if (!roadmap) {
-        throw new NotFoundError("Roadmap not found.");
+        throw new NotFoundError("Roadmap not found.", false, { roadmapId });
       }
       usersWithAccess = roadmap.users.map((user) => user.id);
     }

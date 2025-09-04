@@ -34,8 +34,8 @@ export class FeatureService {
   }
 
   async createFeature(
-    data: z.infer<typeof CreateFeatureSchema>,
     userId: string,
+    data: z.infer<typeof CreateFeatureSchema>,
   ): Promise<Feature> {
     await this.accessService.checkAccess(userId, data.roadmapId);
     logger.debug(`Creating feature for user: ${userId}`);

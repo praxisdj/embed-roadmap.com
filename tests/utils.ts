@@ -91,7 +91,7 @@ export async function createRoadmap(
     users: roadmapData.users || [user.id],
   });
 
-  return await roadmapService.createRoadmap(validatedData);
+  return await roadmapService.createRoadmap(user.id, validatedData);
 }
 
 export async function createMultipleRoadmaps(

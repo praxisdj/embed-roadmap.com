@@ -82,7 +82,7 @@ describe("POST /api/feature", () => {
       });
     });
 
-    test("should return 403 if user is not authorized to create a feature", async () => {
+    test("should return 401 if user is not authorized to create a feature", async () => {
       const userWithAccess = await createUser();
       const userWithoutAccess = await createUser();
 

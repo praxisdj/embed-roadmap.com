@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import logger from "@/lib/utils/logger";
-import { AppError } from "@/lib/utils/errors";
+import { AppError, ForbiddenError } from "@/lib/utils/errors";
+import { authOptions } from "@/lib/authOptions";
+import { getServerSession } from "next-auth";
 
 type Handler = (request: NextRequest, context?: any) => Promise<NextResponse>;
 
@@ -13,6 +15,16 @@ export function apiHandler(handler: Handler) {
       return handleApiError(error, request);
     }
   };
+}
+
+export async function validateSession() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new ForbiddenError("Unauthorized. Please login to continue.");
+  }
+
+  return session;
 }
 
 function handleApiError(error: unknown, request: NextRequest): NextResponse {
@@ -35,7 +47,7 @@ function handleApiError(error: unknown, request: NextRequest): NextResponse {
         error: (error as unknown as { validationErrors: unknown[] })
           .validationErrors,
       },
-      { status: error.statusCode },
+      { status: error.statusCode }
     );
   }
 

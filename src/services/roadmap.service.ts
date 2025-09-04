@@ -7,8 +7,11 @@ import {
   EmbedStyles,
 } from "@/types/roadmap.type";
 import { z } from "zod";
+import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/utils/errors";
+import { UserService } from "@services/user.service";
 
 export class RoadmapService {
+  private userService: UserService;
   private prisma: typeof prisma;
   private defaultInclude = {
     users: {
@@ -26,24 +29,20 @@ export class RoadmapService {
     },
   };
 
-  constructor(prismaInstance?: typeof prisma) {
+  constructor(prismaInstance?: typeof prisma, userService?: UserService) {
+    this.userService = userService || new UserService();
     this.prisma = prismaInstance || prisma;
   }
 
   async createRoadmap(
+    userId: string,
     data: z.infer<typeof CreateRoadmapSchema>,
   ): Promise<Roadmap> {
-    // First, verify that all user IDs exist
-    const existingUsers = await this.prisma.user.findMany({
-      where: {
-        id: { in: data.users },
-        deletedAt: null,
-      },
-      select: { id: true },
-    });
+    // First, verify that this user exists
+    const existingUser = await this.userService.findUser({ id: userId });
 
-    if (existingUsers.length === 0) {
-      throw new Error("No valid users found for roadmap creation");
+    if (!existingUser) {
+      throw new NotFoundError("User not found");
     }
 
     // Transform the validated data to match Prisma's expected format
@@ -51,7 +50,7 @@ export class RoadmapService {
       name: data.name,
       isPublic: data.isPublic ?? false,
       users: {
-        connect: existingUsers.map((user) => ({ id: user.id })),
+        connect: [{ id: existingUser.id }],
       },
     };
 
@@ -69,20 +68,27 @@ export class RoadmapService {
     return roadmap;
   }
 
-  async findRoadmaps(filters?: Prisma.RoadmapWhereInput): Promise<Roadmap[]> {
+  async findRoadmaps(userId: string, filters?: Prisma.RoadmapWhereInput): Promise<Roadmap[]> {
     return this.prisma.roadmap.findMany({
-      where: { ...filters, deletedAt: null },
+      where: { ...filters, deletedAt: null, users: { some: { id: userId } } },
       include: this.defaultInclude,
     });
   }
 
   async findRoadmap(
+    userId: string,
     where: Prisma.RoadmapWhereUniqueInput,
   ): Promise<Roadmap | null> {
-    return this.prisma.roadmap.findUnique({
+    const roadmap = await this.prisma.roadmap.findUnique({
       where: { ...where, deletedAt: null },
       include: this.defaultInclude,
     });
+
+    if (roadmap && !roadmap.users.some((user) => user.id === userId)) {
+      throw new UnauthorizedError("You are not authorized to access this roadmap.", false, { roadmapId: where.id, userId });
+    }
+
+    return roadmap;
   }
 
   async getEmbedData(id: string): Promise<{
@@ -136,13 +142,39 @@ export class RoadmapService {
   }
 
   async updateRoadmap(
+    userId: string,
     id: string,
     data: z.infer<typeof UpdateRoadmapSchema>,
   ): Promise<Roadmap | null> {
+    const roadmap = await this.findRoadmap(userId, { id });
+    if (!roadmap) {
+      throw new NotFoundError("Roadmap not found");
+    }
+
+    if (roadmap.users.some((user) => user.id !== userId)) {
+      throw new ForbiddenError("You don't have permission to update this roadmap.");
+    }
+
     return this.prisma.roadmap.update({
       where: { id, deletedAt: null },
       data,
       include: this.defaultInclude,
+    });
+  }
+
+  async deleteRoadmap(userId: string, id: string): Promise<void> {
+    const roadmap = await this.findRoadmap(userId, { id });
+    if (!roadmap) {
+      throw new NotFoundError("Roadmap not found");
+    }
+
+    if (roadmap.users.some((user) => user.id !== userId)) {
+      throw new ForbiddenError("You don't have permission to delete this roadmap.");
+    }
+
+    await this.prisma.roadmap.update({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   }
 }

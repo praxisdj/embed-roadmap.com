@@ -20,12 +20,12 @@ export const GET = apiHandler(
 
     let roadmap;
     if (featureStatus) {
-      roadmap = await service.findRoadmap({
+      roadmap = await service.findRoadmap(session.user.id, {
         id: roadmapId,
         features: { some: { status: featureStatus } },
       });
     } else {
-      roadmap = await service.findRoadmap({ id: roadmapId });
+      roadmap = await service.findRoadmap(session.user.id, { id: roadmapId });
     }
 
     if (!roadmap) {
@@ -57,7 +57,7 @@ export const PATCH = apiHandler(
     }
 
     // Check if user has access to this roadmap
-    const roadmap = await service.findRoadmap({ id: roadmapId });
+    const roadmap = await service.findRoadmap(session.user.id, { id: roadmapId });
     if (!roadmap) {
       return NextResponse.json({ error: "Roadmap not found" }, { status: 404 });
     }
@@ -72,6 +72,7 @@ export const PATCH = apiHandler(
 
     // Update the roadmap
     const updatedRoadmap = await service.updateRoadmap(
+      session.user.id,
       roadmapId,
       validatedBody.data,
     );
