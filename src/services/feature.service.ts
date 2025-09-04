@@ -25,7 +25,7 @@ export class FeatureService {
   constructor(
     prismaInstance?: typeof prisma,
     roadmapService?: RoadmapService,
-    accessService?: AccessService
+    accessService?: AccessService,
   ) {
     this.prisma = prismaInstance || prisma;
     this.roadmapService = roadmapService || new RoadmapService();
@@ -35,7 +35,7 @@ export class FeatureService {
 
   async createFeature(
     data: z.infer<typeof CreateFeatureSchema>,
-    userId: string
+    userId: string,
   ): Promise<Feature> {
     await this.accessService.checkAccess(userId, data.roadmapId);
     logger.debug(`Creating feature for user: ${userId}`);
@@ -64,7 +64,9 @@ export class FeatureService {
     });
   }
 
-  async findFeature(filters: Prisma.FeatureWhereUniqueInput): Promise<Feature | null> {
+  async findFeature(
+    filters: Prisma.FeatureWhereUniqueInput,
+  ): Promise<Feature | null> {
     return this.prisma.feature.findUnique({
       where: filters,
       include: this.defaultInclude,
@@ -74,7 +76,7 @@ export class FeatureService {
   async updateFeature(
     id: string,
     data: z.infer<typeof UpdateFeatureSchema>,
-    userId: string
+    userId: string,
   ): Promise<Feature> {
     await this.accessService.checkAccess(userId, undefined, id);
     logger.debug(`Updating feature with id: ${id}`);

@@ -7,7 +7,7 @@ export type Feature = Prisma.FeatureGetPayload<{
     roadmap: {
       include: {
         users: true;
-      }
+      };
     };
     votes: true;
   };

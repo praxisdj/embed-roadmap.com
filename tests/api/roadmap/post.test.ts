@@ -27,7 +27,7 @@ describe("POST /api/roadmap", () => {
             isPublic: false,
             users: [0],
           }),
-        })
+        }),
       );
 
       expect(response.status).toBe(403);
@@ -44,7 +44,7 @@ describe("POST /api/roadmap", () => {
             user: {
               id: user.id,
             },
-          })
+          }),
         ),
       }));
 
@@ -61,7 +61,7 @@ describe("POST /api/roadmap", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        })
+        }),
       );
 
       const responseBody = await response.json();
@@ -74,9 +74,9 @@ describe("POST /api/roadmap", () => {
         isPublic: body.isPublic,
         users: expect.arrayContaining([
           expect.objectContaining({
-            id: user.id
-          })
-        ])
+            id: user.id,
+          }),
+        ]),
       });
     });
   });

@@ -1,68 +1,82 @@
-"use client"
+"use client";
 
-import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 interface RoadmapWithRelations {
-  id: string
-  name: string
-  isPublic: boolean
-  createdAt: string
-  deletedAt: string | null
-  features?: Array<{ id: string; name: string }>
-  users?: Array<{ id: string; name: string }>
+  id: string;
+  name: string;
+  isPublic: boolean;
+  createdAt: string;
+  deletedAt: string | null;
+  features?: Array<{ id: string; name: string }>;
+  users?: Array<{ id: string; name: string }>;
 }
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [roadmaps, setRoadmaps] = useState<RoadmapWithRelations[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [roadmaps, setRoadmaps] = useState<RoadmapWithRelations[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newRoadmap, setNewRoadmap] = useState({
     name: "",
-    isPublic: false
-  })
-  const [isCreating, setIsCreating] = useState(false)
+    isPublic: false,
+  });
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/")
+      router.push("/");
     }
-  }, [status, router])
+  }, [status, router]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.id) {
-      void fetchRoadmaps()
+      void fetchRoadmaps();
     }
-  }, [status, session])
+  }, [status, session]);
 
   const fetchRoadmaps = async () => {
     try {
-      const response = await fetch("/api/roadmap")
+      const response = await fetch("/api/roadmap");
       if (response.ok) {
-        const data = await response.json()
-        setRoadmaps(data)
+        const data = await response.json();
+        setRoadmaps(data);
       }
     } catch (error) {
-      console.error("Failed to fetch roadmaps:", error)
+      console.error("Failed to fetch roadmaps:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreateRoadmap = async () => {
-    if (!newRoadmap.name.trim()) return
+    if (!newRoadmap.name.trim()) return;
 
-    setIsCreating(true)
+    setIsCreating(true);
     try {
       const response = await fetch("/api/roadmap", {
         method: "POST",
@@ -72,29 +86,29 @@ export default function HomePage() {
         body: JSON.stringify({
           name: newRoadmap.name.trim(),
           isPublic: newRoadmap.isPublic,
-          users: [session?.user?.id]
+          users: [session?.user?.id],
         }),
-      })
+      });
 
       if (response.ok) {
-        const createdRoadmap = await response.json()
-        setRoadmaps(prev => [createdRoadmap, ...prev])
-        setIsDialogOpen(false)
-        setNewRoadmap({ name: "", isPublic: false })
+        const createdRoadmap = await response.json();
+        setRoadmaps((prev) => [createdRoadmap, ...prev]);
+        setIsDialogOpen(false);
+        setNewRoadmap({ name: "", isPublic: false });
       } else {
-        console.error("Failed to create roadmap")
+        console.error("Failed to create roadmap");
       }
     } catch (error) {
-      console.error("Error creating roadmap:", error)
+      console.error("Error creating roadmap:", error);
     } finally {
-      setIsCreating(false)
+      setIsCreating(false);
     }
-  }
+  };
 
   const handleDialogClose = () => {
-    setIsDialogOpen(false)
-    setNewRoadmap({ name: "", isPublic: false })
-  }
+    setIsDialogOpen(false);
+    setNewRoadmap({ name: "", isPublic: false });
+  };
 
   if (status === "loading") {
     return (
@@ -103,11 +117,11 @@ export default function HomePage() {
           <div className="w-8 h-8 bg-primary rounded-full"></div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!session) {
-    return null
+    return null;
   }
 
   return (
@@ -119,18 +133,25 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary-foreground rounded"></div>
               </div>
-              <h1 className="text-xl font-bold text-foreground">ShareRoadmap</h1>
+              <h1 className="text-xl font-bold text-foreground">
+                ShareRoadmap
+              </h1>
             </div>
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src={session.user.image || "/placeholder.svg"} alt={session.user.name} />
+                  <AvatarImage
+                    src={session.user.image || "/placeholder.svg"}
+                    alt={session.user.name}
+                  />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {session.user.name?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm text-foreground hidden sm:block">{session.user.name}</span>
+                <span className="text-sm text-foreground hidden sm:block">
+                  {session.user.name}
+                </span>
               </div>
               <Button onClick={() => signOut()} variant="outline" size="sm">
                 Sign Out
@@ -148,14 +169,17 @@ export default function HomePage() {
               Welcome back, {session.user.name?.split(" ")[0]}!
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Ready to explore what&apos;s new? Here&apos;s your personalized dashboard with everything you need.
+              Ready to explore what&apos;s new? Here&apos;s your personalized
+              dashboard with everything you need.
             </p>
           </div>
 
           {/* Roadmaps Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-bold text-foreground">Your Roadmaps</h3>
+              <h3 className="text-2xl font-bold text-foreground">
+                Your Roadmaps
+              </h3>
 
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -165,9 +189,12 @@ export default function HomePage() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Create New Roadmap</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold">
+                      Create New Roadmap
+                    </DialogTitle>
                     <DialogDescription>
-                      Start planning your next project with a beautiful roadmap. You can always edit these details later.
+                      Start planning your next project with a beautiful roadmap.
+                      You can always edit these details later.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -179,25 +206,41 @@ export default function HomePage() {
                         id="name"
                         placeholder="Enter roadmap name..."
                         value={newRoadmap.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewRoadmap(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setNewRoadmap((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         className="border-border focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-sm font-medium">Public Roadmap</Label>
+                        <Label className="text-sm font-medium">
+                          Public Roadmap
+                        </Label>
                         <p className="text-xs text-muted-foreground">
                           Make this roadmap visible to other users
                         </p>
                       </div>
                       <Switch
                         checked={newRoadmap.isPublic}
-                        onCheckedChange={(checked: boolean) => setNewRoadmap(prev => ({ ...prev, isPublic: checked }))}
+                        onCheckedChange={(checked: boolean) =>
+                          setNewRoadmap((prev) => ({
+                            ...prev,
+                            isPublic: checked,
+                          }))
+                        }
                       />
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={handleDialogClose} disabled={isCreating}>
+                    <Button
+                      variant="outline"
+                      onClick={handleDialogClose}
+                      disabled={isCreating}
+                    >
                       Cancel
                     </Button>
                     <Button
@@ -233,9 +276,12 @@ export default function HomePage() {
                   <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
                     <div className="w-8 h-8 bg-muted-foreground rounded"></div>
                   </div>
-                  <h4 className="text-lg font-semibold text-foreground mb-2">No roadmaps yet</h4>
+                  <h4 className="text-lg font-semibold text-foreground mb-2">
+                    No roadmaps yet
+                  </h4>
                   <p className="text-muted-foreground mb-4">
-                    Create your first roadmap to get started with project planning
+                    Create your first roadmap to get started with project
+                    planning
                   </p>
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
@@ -245,9 +291,12 @@ export default function HomePage() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">Create Your First Roadmap</DialogTitle>
+                        <DialogTitle className="text-2xl font-bold">
+                          Create Your First Roadmap
+                        </DialogTitle>
                         <DialogDescription>
-                          Start planning your next project with a beautiful roadmap. You can always edit these details later.
+                          Start planning your next project with a beautiful
+                          roadmap. You can always edit these details later.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
@@ -259,25 +308,43 @@ export default function HomePage() {
                             id="name"
                             placeholder="Enter roadmap name..."
                             value={newRoadmap.name}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewRoadmap(prev => ({ ...prev, name: e.target.value }))}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>,
+                            ) =>
+                              setNewRoadmap((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                              }))
+                            }
                             className="border-border focus:ring-2 focus:ring-primary/20"
                           />
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-medium">Public Roadmap</Label>
+                            <Label className="text-sm font-medium">
+                              Public Roadmap
+                            </Label>
                             <p className="text-xs text-muted-foreground">
                               Make this roadmap visible to other users
                             </p>
                           </div>
                           <Switch
                             checked={newRoadmap.isPublic}
-                            onCheckedChange={(checked: boolean) => setNewRoadmap(prev => ({ ...prev, isPublic: checked }))}
+                            onCheckedChange={(checked: boolean) =>
+                              setNewRoadmap((prev) => ({
+                                ...prev,
+                                isPublic: checked,
+                              }))
+                            }
                           />
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button variant="outline" onClick={handleDialogClose} disabled={isCreating}>
+                        <Button
+                          variant="outline"
+                          onClick={handleDialogClose}
+                          disabled={isCreating}
+                        >
                           Cancel
                         </Button>
                         <Button
@@ -295,14 +362,19 @@ export default function HomePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {roadmaps.map((roadmap) => (
-                  <Card key={roadmap.id} className="hover:shadow-lg transition-all duration-200 border-0 bg-card">
+                  <Card
+                    key={roadmap.id}
+                    className="hover:shadow-lg transition-all duration-200 border-0 bg-card"
+                  >
                     <CardHeader className="pb-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-2">
                         <div className="w-6 h-6 bg-primary rounded-md"></div>
                       </div>
                       <CardTitle className="text-xl">{roadmap.name}</CardTitle>
                       <CardDescription>
-                        {roadmap.isPublic ? "Public roadmap" : "Private roadmap"}
+                        {roadmap.isPublic
+                          ? "Public roadmap"
+                          : "Private roadmap"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -310,7 +382,7 @@ export default function HomePage() {
                         <span>{roadmap.features?.length || 0} features</span>
                         <span>{roadmap.users?.length || 0} members</span>
                       </div>
-                      <Button 
+                      <Button
                         className="w-full bg-primary hover:bg-primary/90"
                         onClick={() => router.push(`/roadmap/${roadmap.id}`)}
                       >
@@ -325,5 +397,5 @@ export default function HomePage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

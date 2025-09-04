@@ -22,6 +22,9 @@ export const POST = apiHandler(async (req: NextRequest) => {
     throw new ValidationError(validatedBody.error.issues);
   }
 
-  const feature = await service.createFeature(validatedBody.data, session.user.id);
+  const feature = await service.createFeature(
+    validatedBody.data,
+    session.user.id,
+  );
   return NextResponse.json(feature, { status: 201 });
 });

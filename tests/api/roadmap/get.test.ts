@@ -26,7 +26,7 @@ describe("GET /api/roadmap", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        })
+        }),
       );
 
       expect(response.status).toBe(403);
@@ -52,7 +52,7 @@ describe("GET /api/roadmap", () => {
             user: {
               id: user1.id,
             },
-          })
+          }),
         ),
       }));
 
@@ -62,7 +62,7 @@ describe("GET /api/roadmap", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        })
+        }),
       );
 
       const responseBody1 = await response1.json();
@@ -74,7 +74,7 @@ describe("GET /api/roadmap", () => {
             user: {
               id: user2.id,
             },
-          })
+          }),
         ),
       }));
 
@@ -84,7 +84,7 @@ describe("GET /api/roadmap", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        })
+        }),
       );
 
       const responseBody2 = await response2.json();

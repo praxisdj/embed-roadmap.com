@@ -14,7 +14,7 @@ export class AccessService {
   async checkAccess(
     userId: string,
     roadmapId?: string,
-    featureId?: string
+    featureId?: string,
   ): Promise<void> {
     let usersWithAccess: string[] = [];
     if (roadmapId) {
@@ -35,7 +35,7 @@ export class AccessService {
 
     if (!usersWithAccess.includes(userId)) {
       throw new UnauthorizedError(
-        "You are not authorized to access this resource."
+        "You are not authorized to access this resource.",
       );
     }
   }

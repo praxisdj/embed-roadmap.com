@@ -1,4 +1,3 @@
-
 export const Status = {
   BACKLOG: {
     emoji: "📋",
@@ -23,7 +22,7 @@ export const Status = {
     label: "Done",
     description: "Features that are completed",
     color: "bg-green-500 text-white",
-  }
+  },
 };
 
 export const statusKeys = Object.keys(Status) as (keyof typeof Status)[];
@@ -32,6 +31,5 @@ export const statusConfig = Object.fromEntries(
   Object.entries(Status).map(([key, config]) => [
     key,
     { label: config.label, icon: config.emoji },
-  ])
+  ]),
 );
-

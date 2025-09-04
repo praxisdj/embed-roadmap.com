@@ -22,19 +22,25 @@ export const PATCH = apiHandler(async (req: NextRequest) => {
     throw new ValidationError(validatedBody.error.issues);
   }
 
-  const feature = await service.updateFeature(validatedBody.data.id, validatedBody.data, session.user.id);
+  const feature = await service.updateFeature(
+    validatedBody.data.id,
+    validatedBody.data,
+    session.user.id,
+  );
   return NextResponse.json(feature, { status: 200 });
 });
 
-export const DELETE = apiHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
-  const session = await getServerSession(authOptions);
+export const DELETE = apiHandler(
+  async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+    const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
-    throw new ForbiddenError("Unauthorized. Please login to continue.");
-  }
+    if (!session?.user?.id) {
+      throw new ForbiddenError("Unauthorized. Please login to continue.");
+    }
 
-  const { id } = await params;
+    const { id } = await params;
 
-  const feature = await service.deleteFeature(id, session.user.id);
-  return NextResponse.json(feature, { status: 200 });
-});
+    const feature = await service.deleteFeature(id, session.user.id);
+    return NextResponse.json(feature, { status: 200 });
+  },
+);

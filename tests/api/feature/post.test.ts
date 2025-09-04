@@ -28,7 +28,7 @@ describe("POST /api/feature", () => {
             roadmapId: 0,
             status: "BACKLOG",
           }),
-        })
+        }),
       );
 
       expect(response.status).toBe(403);
@@ -48,7 +48,7 @@ describe("POST /api/feature", () => {
             user: {
               id: user.id,
             },
-          })
+          }),
         ),
       }));
 
@@ -66,7 +66,7 @@ describe("POST /api/feature", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        })
+        }),
       );
 
       const responseBody = await response.json();
@@ -96,7 +96,7 @@ describe("POST /api/feature", () => {
             user: {
               id: userWithoutAccess.id,
             },
-          })
+          }),
         ),
       }));
 
@@ -114,7 +114,7 @@ describe("POST /api/feature", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        })
+        }),
       );
 
       expect(response.status).toBe(401);

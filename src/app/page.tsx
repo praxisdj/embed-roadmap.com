@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useSession, signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Page() {
-  const { status } = useSession()
-  const router = useRouter()
+  const { status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/home")
+      router.push("/home");
     }
-  }, [status, router])
+  }, [status, router]);
 
   if (status === "loading") {
     return (
@@ -23,7 +23,7 @@ export default function Page() {
           <div className="w-8 h-8 bg-primary/80 rounded-full"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -35,8 +35,12 @@ export default function Page() {
               <div className="w-16 h-16 bg-primary/90 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
                 <div className="w-8 h-8 bg-primary-foreground rounded-lg opacity-90"></div>
               </div>
-              <h1 className="text-3xl font-bold text-foreground text-balance">Welcome to ShareRoadmap</h1>
-              <p className="text-muted-foreground">Sign in to continue to your dashboard</p>
+              <h1 className="text-3xl font-bold text-foreground text-balance">
+                Welcome to ShareRoadmap
+              </h1>
+              <p className="text-muted-foreground">
+                Sign in to continue to your dashboard
+              </p>
             </div>
 
             <Button
@@ -66,11 +70,12 @@ export default function Page() {
             </Button>
 
             <p className="text-xs text-muted-foreground opacity-80">
-              By continuing, you agree to our Terms of Service and Privacy Policy
+              By continuing, you agree to our Terms of Service and Privacy
+              Policy
             </p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

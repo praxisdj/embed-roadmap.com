@@ -1,7 +1,11 @@
 import { Roadmap } from "@/types/roadmap.type";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { CreateRoadmapSchema, UpdateRoadmapSchema, EmbedStyles } from "@/types/roadmap.type";
+import {
+  CreateRoadmapSchema,
+  UpdateRoadmapSchema,
+  EmbedStyles,
+} from "@/types/roadmap.type";
 import { z } from "zod";
 
 export class RoadmapService {
@@ -27,7 +31,7 @@ export class RoadmapService {
   }
 
   async createRoadmap(
-    data: z.infer<typeof CreateRoadmapSchema>
+    data: z.infer<typeof CreateRoadmapSchema>,
   ): Promise<Roadmap> {
     // First, verify that all user IDs exist
     const existingUsers = await this.prisma.user.findMany({
@@ -72,7 +76,9 @@ export class RoadmapService {
     });
   }
 
-  async findRoadmap(where: Prisma.RoadmapWhereUniqueInput): Promise<Roadmap | null> {
+  async findRoadmap(
+    where: Prisma.RoadmapWhereUniqueInput,
+  ): Promise<Roadmap | null> {
     return this.prisma.roadmap.findUnique({
       where: { ...where, deletedAt: null },
       include: this.defaultInclude,
@@ -131,7 +137,7 @@ export class RoadmapService {
 
   async updateRoadmap(
     id: string,
-    data: z.infer<typeof UpdateRoadmapSchema>
+    data: z.infer<typeof UpdateRoadmapSchema>,
   ): Promise<Roadmap | null> {
     return this.prisma.roadmap.update({
       where: { id, deletedAt: null },
