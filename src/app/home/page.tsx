@@ -119,7 +119,7 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary-foreground rounded"></div>
               </div>
-              <h1 className="text-xl font-bold text-foreground">Anima</h1>
+              <h1 className="text-xl font-bold text-foreground">ShareRoadmap</h1>
             </div>
 
             <div className="flex items-center space-x-4">

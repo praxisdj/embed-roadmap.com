@@ -35,7 +35,7 @@ export default function Page() {
               <div className="w-16 h-16 bg-primary/90 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
                 <div className="w-8 h-8 bg-primary-foreground rounded-lg opacity-90"></div>
               </div>
-              <h1 className="text-3xl font-bold text-foreground text-balance">Welcome to Anima</h1>
+              <h1 className="text-3xl font-bold text-foreground text-balance">Welcome to ShareRoadmap</h1>
               <p className="text-muted-foreground">Sign in to continue to your dashboard</p>
             </div>
 

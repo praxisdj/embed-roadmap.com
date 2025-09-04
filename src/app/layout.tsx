@@ -17,8 +17,8 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Anima",
-  description: "Welcome to Anima",
+  title: "ShareRoadmap",
+  description: "Welcome to ShareRoadmap",
 }
 
 export default function RootLayout({

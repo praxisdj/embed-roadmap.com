@@ -147,6 +147,14 @@ function DroppableColumn({
           )}
         </div>
       </SortableContext>
+
+      {/* Add Feature Button */}
+      <button
+        className="w-full border-2 border-dashed rounded-lg p-3 text-center transition-all duration-200 hover:border-solid hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+        onClick={() => onAddFeature(status)}
+      >
+        <span className="text-sm">+ Add feature</span>
+      </button>
     </div>
   )
 }
@@ -754,7 +762,7 @@ export default function RoadmapPage() {
                     Embed Roadmap
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+                <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-y-auto">
                   <RoadmapEmbedConfig
                     roadmapId={roadmapId}
                     onSave={async (config) => {

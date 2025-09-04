@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Copy, Check, RefreshCw, Eye, EyeOff } from "lucide-react"
+import { Copy, Check } from "lucide-react"
 import { EmbedStyles } from "@/types/roadmap.type"
 import { Status } from "@/types/status.type"
 
@@ -44,9 +44,8 @@ export default function RoadmapEmbedConfig({
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [showPreview, setShowPreview] = useState(false)
 
-  const fetchCurrentStyles = async () => {
+  const fetchCurrentStyles = useCallback(async () => {
     if (!onFetchCurrentStyles) return
 
     setIsLoading(true)
@@ -60,7 +59,7 @@ export default function RoadmapEmbedConfig({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [onFetchCurrentStyles])
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -101,10 +100,15 @@ export default function RoadmapEmbedConfig({
     setStyles(defaultStyles)
   }
 
+  // Helper function to get status colors with fallback
+  const getStatusColors = (): Record<string, string> => {
+    return styles.statusColors || defaultStyles.statusColors || {}
+  }
+
   // Fetch current styles when component mounts
   useEffect(() => {
     void fetchCurrentStyles()
-  }, [])
+  }, [fetchCurrentStyles])
 
   return (
     <div className="space-y-6">
@@ -126,7 +130,7 @@ export default function RoadmapEmbedConfig({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="primaryColor">Primary Color</Label>
                 <div className="flex space-x-2">
@@ -207,8 +211,8 @@ export default function RoadmapEmbedConfig({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {Object.entries(styles.statusColors || {}).map(([status, color]) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Object.entries(getStatusColors()).map(([status, color]) => (
                 <div key={status} className="space-y-2">
                   <Label htmlFor={`status-${status}`} className="capitalize">
                     {status.replace('_', ' ')}
@@ -235,14 +239,10 @@ export default function RoadmapEmbedConfig({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col lg:flex-row gap-3 justify-between items-center">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={resetToDefaults} disabled={isLoading}>
             Reset to Defaults
-          </Button>
-          <Button variant="outline" onClick={fetchCurrentStyles} disabled={isLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            {isLoading ? "Loading..." : "Refresh"}
           </Button>
           <Button onClick={handleSave} disabled={isSaving || isLoading}>
             {isSaving ? "Saving..." : "Save Changes"}
@@ -267,32 +267,10 @@ export default function RoadmapEmbedConfig({
       {/* Embed Preview */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Embed Code</CardTitle>
-              <CardDescription>
-                Copy this code to embed your roadmap on any website
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPreview(!showPreview)}
-              className="flex items-center space-x-2"
-            >
-              {showPreview ? (
-                <>
-                  <EyeOff className="w-4 h-4" />
-                  <span>Hide Preview</span>
-                </>
-              ) : (
-                <>
-                  <Eye className="w-4 h-4" />
-                  <span>Show Preview</span>
-                </>
-              )}
-            </Button>
-          </div>
+          <CardTitle>Embed Code</CardTitle>
+          <CardDescription>
+            Copy this code to embed your roadmap on any website
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="bg-muted p-3 rounded-md font-mono text-sm">
@@ -307,12 +285,11 @@ export default function RoadmapEmbedConfig({
       </Card>
 
       {/* Live Preview */}
-      {showPreview && (
-        <Card>
+      <Card>
           <CardHeader>
-            <CardTitle>Live Preview</CardTitle>
+            <CardTitle>Kanban Board Preview</CardTitle>
             <CardDescription>
-              See how your embedded roadmap will look with the current styling
+              See how your embedded roadmap will look with the current styling in Kanban board format
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -337,130 +314,136 @@ export default function RoadmapEmbedConfig({
                     className="text-3xl font-bold mb-2"
                     style={{ color: styles.textColor || '#1f2937' }}
                   >
-                    Your Roadmap
+                    Product Roadmap
                   </h2>
                   <div
                     className="text-sm opacity-70"
                     style={{ color: styles.textColor || '#1f2937' }}
                   >
-                    <span>5 features</span>
+                    <span>12 features</span>
                     <span className="mx-2">•</span>
-                    <span>Created 2 days ago</span>
+                    <span>Updated 1 day ago</span>
+                    <span className="mx-2">•</span>
+                    <span>3 team members</span>
                   </div>
                 </div>
 
-                {/* Status Overview */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  {Object.entries(styles.statusColors || {}).map(([status, color]) => (
-                    <div
-                      key={status}
-                      className="flex items-center gap-3 p-4 rounded-lg border"
-                      style={{
+                {/* Kanban Board Preview */}
+                <div className="grid grid-cols-4 gap-4 min-h-[400px]">
+                  {Object.entries(getStatusColors()).map(([status, color]) => {
+                    const mockFeatures = {
+                      BACKLOG: [
+                        { title: "User Authentication", description: "Implement secure login and registration system", votes: 12 },
+                        { title: "Dark Mode Toggle", description: "Add theme switching capability", votes: 8 },
+                        { title: "Mobile Responsive Design", description: "Optimize layout for mobile devices", votes: 15 }
+                      ],
+                      NEXT_UP: [
+                        { title: "API Integration", description: "Connect frontend with backend services", votes: 6 },
+                        { title: "Data Validation", description: "Add form validation and error handling", votes: 9 }
+                      ],
+                      IN_PROGRESS: [
+                        { title: "Dashboard Analytics", description: "Create comprehensive analytics dashboard", votes: 4 },
+                        { title: "Real-time Notifications", description: "Implement push notification system", votes: 7 }
+                      ],
+                      DONE: [
+                        { title: "Project Setup", description: "Initialize project structure and dependencies", votes: 3 },
+                        { title: "Basic UI Components", description: "Create reusable UI component library", votes: 5 }
+                      ]
+                    }
+
+                    const features = mockFeatures[status as keyof typeof mockFeatures] || []
+
+                    return (
+                      <div key={status} className="space-y-4 p-4 rounded-lg border" style={{
                         backgroundColor: 'rgba(0, 0, 0, 0.02)',
                         borderColor: styles.borderColor || '#e5e7eb'
-                      }}
-                    >
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: color || '#6b7280' }}
-                      >
-                        {Status[status as keyof typeof Status]?.emoji}
-                      </div>
-                      <div>
-                        <p
-                          className="text-xs font-medium opacity-70 capitalize"
-                          style={{ color: styles.textColor || '#1f2937' }}
-                        >
-                          {status.replace('_', ' ')}
-                        </p>
-                        <p
-                          className="text-2xl font-bold"
-                          style={{ color: styles.textColor || '#1f2937' }}
-                        >
-                          {Math.floor(Math.random() * 5) + 1}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Features Section */}
-                <div className="space-y-6">
-                  {Object.entries(styles.statusColors || {}).slice(0, 2).map(([status, color]) => (
-                    <div key={status} className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="text-white font-medium px-3 py-1 rounded-full text-sm"
-                          style={{ backgroundColor: color || '#6b7280' }}
-                        >
-                          <span className="mr-1">
-                            {Status[status as keyof typeof Status]?.emoji}
-                          </span>
-                          {status.replace('_', ' ')}
-                        </span>
-                        <span
-                          className="text-sm opacity-70"
-                          style={{ color: styles.textColor || '#1f2937' }}
-                        >
-                          {Math.floor(Math.random() * 3) + 1} feature{Math.floor(Math.random() * 3) + 1 !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[1, 2].map((i) => (
-                          <div
-                            key={i}
-                            className="border rounded-lg p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
-                            style={{
-                              backgroundColor: styles.backgroundColor || '#ffffff',
-                              borderColor: styles.borderColor || '#e5e7eb'
-                            }}
-                          >
-                            <div className="mb-3">
+                      }}>
+                        {/* Column Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
+                              style={{ backgroundColor: color || '#6b7280' }}
+                            >
+                              {Status[status as keyof typeof Status]?.emoji}
+                            </div>
+                            <div>
                               <h3
-                                className="text-lg font-semibold mb-2"
+                                className="font-semibold text-sm capitalize"
                                 style={{ color: styles.textColor || '#1f2937' }}
                               >
-                                Sample Feature {i}
+                                {status.replace('_', ' ')}
                               </h3>
                               <p
-                                className="text-sm opacity-70 leading-relaxed"
+                                className="text-xs opacity-60"
                                 style={{ color: styles.textColor || '#1f2937' }}
                               >
-                                This is how your feature cards will look with the current styling applied.
+                                {features.length} feature{features.length !== 1 ? 's' : ''}
                               </p>
                             </div>
-                            <div className="flex justify-between items-center text-xs">
-                              <span
-                                className="opacity-60"
-                                style={{ color: styles.textColor || '#1f2937' }}
-                              >
-                                Created 2 days ago
-                              </span>
-                              <span
-                                className="px-2 py-1 rounded-full border"
-                                style={{
-                                  color: styles.textColor || '#1f2937',
-                                  borderColor: styles.borderColor || '#e5e7eb'
-                                }}
-                              >
-                                {Math.floor(Math.random() * 10) + 1} votes
-                              </span>
-                            </div>
                           </div>
-                        ))}
+                        </div>
+
+                        {/* Feature Cards */}
+                        <div className="space-y-3">
+                          {features.map((feature, index) => (
+                            <div
+                              key={index}
+                              className="border rounded-lg p-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+                              style={{
+                                backgroundColor: styles.backgroundColor || '#ffffff',
+                                borderColor: styles.borderColor || '#e5e7eb'
+                              }}
+                            >
+                              <div className="mb-3">
+                                <h4
+                                  className="font-medium text-sm mb-2 line-clamp-2"
+                                  style={{ color: styles.textColor || '#1f2937' }}
+                                >
+                                  {feature.title}
+                                </h4>
+                                <p
+                                  className="text-xs opacity-70 leading-relaxed line-clamp-2"
+                                  style={{ color: styles.textColor || '#1f2937' }}
+                                >
+                                  {feature.description}
+                                </p>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <span
+                                  className="opacity-60"
+                                  style={{ color: styles.textColor || '#1f2937' }}
+                                >
+                                  {Math.floor(Math.random() * 7) + 1} days ago
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <span
+                                    className="px-2 py-1 rounded-full border"
+                                    style={{
+                                      color: styles.textColor || '#1f2937',
+                                      borderColor: styles.borderColor || '#e5e7eb',
+                                      backgroundColor: 'rgba(0, 0, 0, 0.02)'
+                                    }}
+                                  >
+                                    {feature.votes} votes
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
             <div className="mt-3 text-xs text-muted-foreground">
-              💡 This preview updates in real-time as you change colors
+              💡 This Kanban board preview updates in real-time as you change colors
             </div>
           </CardContent>
         </Card>
-      )}
     </div>
   )
 }
