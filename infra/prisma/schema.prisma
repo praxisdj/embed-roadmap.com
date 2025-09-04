@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String    @id @default(cuid())
+  name                    String
+  username                String    @unique
+  email                   String    @unique
+  phone                   String?
+  avatarUrl               String?
+  isAdmin                 Boolean   @default(false)
+  invitedBy               User?     @relation("Invites", fields: [invitedById], references: [id])
+  invitedById             String?
+  invites                 User[]    @relation("Invites")
+  roadmaps                Roadmap[] @relation("UserRoadmaps")
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  deletedAt               DateTime?
+  @@index([username])
+  @@index([email])
+}
+
+model Roadmap {
+  id        String    @id @default(cuid())
+  name      String
+  isPublic  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  users     User[]    @relation("UserRoadmaps")
+  features  Feature[]
+
+  // Embed styling configuration
+  embedStyles Json? @default("{}")
+}
+
+model Feature {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  roadmap     Roadmap    @relation(fields: [roadmapId], references: [id])
+  roadmapId   String
+  status      String
+  votes       Vote[]
+  createdAt   DateTime   @default(now())
+  deletedAt   DateTime?
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  feature     Feature  @relation(fields: [featureId], references: [id])
+  featureId   String
+  voterId     String   // browser/session identifier
+  voterEmail  String?
+  createdAt   DateTime @default(now())
+}
