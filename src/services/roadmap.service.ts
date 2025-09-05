@@ -7,7 +7,11 @@ import {
   EmbedStyles,
 } from "@/types/roadmap.type";
 import { z } from "zod";
-import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/utils/errors";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/lib/utils/errors";
 import { UserService } from "@services/user.service";
 
 export class RoadmapService {
@@ -68,7 +72,10 @@ export class RoadmapService {
     return roadmap;
   }
 
-  async findRoadmaps(userId: string, filters?: Prisma.RoadmapWhereInput): Promise<Roadmap[]> {
+  async findRoadmaps(
+    userId: string,
+    filters?: Prisma.RoadmapWhereInput,
+  ): Promise<Roadmap[]> {
     return this.prisma.roadmap.findMany({
       where: { ...filters, deletedAt: null, users: { some: { id: userId } } },
       include: this.defaultInclude,
@@ -85,7 +92,11 @@ export class RoadmapService {
     });
 
     if (roadmap && !roadmap.users.some((user) => user.id === userId)) {
-      throw new UnauthorizedError("You are not authorized to access this roadmap.", false, { roadmapId: where.id, userId });
+      throw new UnauthorizedError(
+        "You are not authorized to access this roadmap.",
+        false,
+        { roadmapId: where.id, userId },
+      );
     }
 
     return roadmap;
@@ -152,7 +163,9 @@ export class RoadmapService {
     }
 
     if (roadmap.users.some((user) => user.id !== userId)) {
-      throw new ForbiddenError("You don't have permission to update this roadmap.");
+      throw new ForbiddenError(
+        "You don't have permission to update this roadmap.",
+      );
     }
 
     return this.prisma.roadmap.update({
@@ -169,7 +182,9 @@ export class RoadmapService {
     }
 
     if (roadmap.users.some((user) => user.id !== userId)) {
-      throw new ForbiddenError("You don't have permission to delete this roadmap.");
+      throw new ForbiddenError(
+        "You don't have permission to delete this roadmap.",
+      );
     }
 
     await this.prisma.roadmap.update({

@@ -47,7 +47,7 @@ function handleApiError(error: unknown, request: NextRequest): NextResponse {
         error: (error as unknown as { validationErrors: unknown[] })
           .validationErrors,
       },
-      { status: error.statusCode }
+      { status: error.statusCode },
     );
   }
 

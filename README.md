@@ -1,108 +1,251 @@
-# Euler NextJS Boilerplate
+# Embedded Roadmap
 
-A production-ready Next.js boilerplate with comprehensive developer tooling, testing infrastructure, and third-party integrations.
+A simple roadmap management platform with embeddable Kanban boards. Create and manage feature roadmaps with drag-and-drop functionality, customizable styling, and seamless embedding capabilities.
 
-## Project Structure
+## ✨ Features
 
-### Database & Models
+- **Kanban Board Interface**: Drag-and-drop feature management with status tracking
+- **Embeddable Roadmaps**: Customizable embed widgets for external websites
+- **Real-time Collaboration**: Multi-user access with role-based permissions
+- **Custom Styling**: Full control over embed appearance and branding
+- **Feature Management**: Create, edit, delete, and vote on features
+- **Status Tracking**: Backlog, Next Up, In Progress, and Done statuses
 
-- **Models** should be specified in the `infra/prisma/schema.prisma` file
-- Database migrations are stored in `infra/prisma/migrations/`
-- The Prisma client is configured in `src/lib/prisma.ts`
+## 🛠 Tech Stack
 
-### Services
-
-- **Services** should be named as `{object}.service.ts` under the `src/services/` directory
-- Example: `user.service.ts` for user-related business logic
-- Services contain the core business logic and data access operations
-
-### API Routes
-
-- **API endpoints** follow Next.js App Router conventions in `src/app/api/`
-- RESTful structure: `src/app/api/{resource}/route.ts` for collection endpoints
-- Individual resource endpoints: `src/app/api/{resource}/[id]/route.ts`
-- All API routes use the `apiHandler` wrapper for consistent error handling
-
-### Testing
-
-- **Tests** mirror the source structure under the `tests/` directory
-- API tests: `tests/api/{resource}/{method}.test.ts`
-- Service tests: `tests/services/{service}.service.test.ts`
-- Library tests: `tests/lib/{module}.test.ts`
-- Uses Bun's built-in test runner
-
-### Infrastructure
-
-- **Docker services** configured in `infra/dev-compose.yaml`, it includes PostgreSQL and Redis containers for local development
-- **Database scripts** in `infra/scripts/` for setup and health checks
-
-### Utilities
-
-- **Shared utilities** in `src/lib/utils/`
-- **API handler** wrapper for consistent error handling and logging
-- **Logger** configuration with Winston
-- **Error classes** for different error types
-
-## Tech Stack
-
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Cache**: Redis
-- **Runtime**: Bun
+- **Frontend**: Next.js + TypeScript
+- **Styling**: Tailwind CSS, Radix UI, Shadcn/ui
+- **Backend**: Bun + Next.js + Prisma ORM + TypeScript
+- **Database**: PostgreSQL
+- **Authentication**: NextAuth.js
 - **Testing**: Bun Test
-- **Validation**: Zod
-- **Styling**: Tailwind CSS
-- **Logging**: Winston
+- **Queue**: BullMQ with Redis
 
-## Getting Started
+## 🏗 Architecture Patterns
+
+### Service Layer Pattern
+
+The application follows a clean service layer architecture where business logic is separated from API routes:
+
+```typescript
+// Services handle business logic
+export class RoadmapService {
+  async createRoadmap(
+    userId: string,
+    data: CreateRoadmapSchema,
+  ): Promise<Roadmap>;
+  async findRoadmaps(
+    userId: string,
+    filters?: Prisma.RoadmapWhereInput,
+  ): Promise<Roadmap[]>;
+  async updateRoadmap(
+    userId: string,
+    id: string,
+    data: UpdateRoadmapSchema,
+  ): Promise<Roadmap>;
+}
+```
+
+**Benefits**:
+
+- Centralized business logic
+- Easy testing and mocking
+- Reusable across different API endpoints
+- Clear separation of concerns
+
+### API Handler Pattern
+
+All API routes use a consistent error handling wrapper:
+
+```typescript
+export function apiHandler(handler: Handler) {
+  return async (request: NextRequest, context?: any): Promise<NextResponse> => {
+    try {
+      return await handler(request, context);
+    } catch (error) {
+      return handleApiError(error, request);
+    }
+  };
+}
+```
+
+**Benefits**:
+
+- Consistent error handling across all endpoints
+- Automatic logging and monitoring
+- Centralized error response formatting
+
+### Custom Error Classes
+
+The application uses a structured error handling system:
+
+```typescript
+export class AppError extends Error {
+  statusCode: number;
+  isCriticalError: boolean;
+  meta?: unknown;
+}
+```
+
+**Benefits**:
+
+- Type-safe error handling
+- Consistent error responses
+- Detailed error metadata for debugging
+
+### Type-Safe Validation
+
+All data validation uses Zod schemas with TypeScript integration:
+
+```typescript
+export const CreateRoadmapSchema = z.object({
+  name: z.string().min(1).max(100),
+  isPublic: z.boolean(),
+  users: z.array(z.string()).min(1),
+});
+```
+
+**Benefits**:
+
+- Runtime type safety
+- Automatic TypeScript types
+- Consistent validation across frontend and backend
+
+## 🧪 Testing Standards
+
+### Test Structure
+
+Tests follow a consistent pattern with proper setup and teardown:
+
+```typescript
+describe("API Endpoint", () => {
+  beforeEach(async () => {
+    await clearDatabase();
+    mock.restore();
+  });
+
+  test("should handle success case", async () => {
+    // Arrange
+    const testData = createTestData();
+
+    // Act
+    const response = await makeRequest(testData);
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(expectedData);
+  });
+});
+```
+
+### Database Testing
+
+- Each test runs with a clean database state
+- Tests use utility functions for data creation
+- Proper cleanup between test runs
+
+### Mocking Strategy
+
+- External services are mocked at the module level
+- Authentication is mocked for API tests
+- Database operations use real database with cleanup
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Bun installed
+- Bun
 - Docker and Docker Compose
-- Environment variables configured (see `.env.example`)
 
 ### Installation
 
-1. Install dependencies:
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd embedded-roadmap
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   bun install
+   ```
+
+3. **Set up environment variables**
+
+   ```bash
+   cp .env.test .env
+   # Edit .env with your configuration
+   ```
+
+4. **Start services**
+
+   ```bash
+   bun run services:up
+   ```
+
+5. **Run database migrations**
+
+   ```bash
+   bun run prisma:migrate:dev
+   ```
+
+6. **Start development server**
+   ```bash
+   bun run dev
+   ```
+
+### Running Tests
 
 ```bash
-bun install
+# Run all tests
+bun run test
+
+# Run specific test file
+bun test tests/api/roadmap/get.test.ts --bail
 ```
 
-2. Start services (PostgreSQL & Redis):
+## 📁 Project Structure
 
-```bash
-bun run services:up
+```
+src/
+├── app/                   # Next.js app router
+│   ├── api/               # API routes
+│   ├── roadmap/           # Roadmap pages
+│   └── globals.css
+├── components/            # React components
+│   ├── ui/                # Reusable UI components
+│   └── RoadmapEmbed.tsx   # Embed component
+├── lib/                   # Utilities and configuration
+│   └── utils/             # Helper functions
+├── services/              # Business logic layer
+│   ├── roadmap.service.ts
+│   ├── user.service.ts
+│   └── feature.service.ts
+└── types/                # TypeScript type definitions
+    ├── roadmap.type.ts
+    ├── user.type.ts
+    └── feature.type.ts
 ```
 
-3. Set up the database:
+## 🤝 Contributing
 
-```bash
-bunx prisma migrate dev
-```
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Follow the coding standards**:
+   - Use TypeScript for all new code
+   - Follow the service layer pattern
+   - Write tests for new functionality
+   - Use the established error handling patterns
+4. **Commit your changes**: `git commit -m 'Add amazing feature'`
+5. **Push to the branch**: `git push origin feature/amazing-feature`
+6. **Open a Pull Request**
 
-4. Start the development server:
+## 📄 License
 
-```bash
-bun run dev
-```
+This project is open source and available under the [MIT License](LICENSE).
 
-## Development Guidelines
+## 🆘 Support
 
-### Adding New Features
-
-1. **Define the model** in `infra/prisma/schema.prisma`
-2. **Create types** in `src/types/{feature}.type.ts` with Zod schemas
-3. **Implement service** in `src/services/{feature}.service.ts`
-4. **Create API routes** in `src/app/api/{feature}/route.ts`
-5. **Write tests** in `tests/` following the same structure
-
-### File Naming Conventions
-
-- Services: `{object}.service.ts`
-- Types: `{object}.type.ts`
-- Tests: `{file-being-tested}.test.ts`
-- Components: PascalCase (e.g., `UserProfile.tsx`)
-- Utilities: camelCase (e.g., `apiHandler.ts`)
+For questions, bug reports, or feature requests, please open an issue on GitHub.

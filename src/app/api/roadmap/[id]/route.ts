@@ -57,7 +57,9 @@ export const PATCH = apiHandler(
     }
 
     // Check if user has access to this roadmap
-    const roadmap = await service.findRoadmap(session.user.id, { id: roadmapId });
+    const roadmap = await service.findRoadmap(session.user.id, {
+      id: roadmapId,
+    });
     if (!roadmap) {
       return NextResponse.json({ error: "Roadmap not found" }, { status: 404 });
     }

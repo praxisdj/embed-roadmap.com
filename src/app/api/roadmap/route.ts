@@ -26,7 +26,10 @@ async function postHandler(req: NextRequest) {
     throw new ValidationError(validatedBody.error.issues);
   }
 
-  const roadmap = await service.createRoadmap(session.user.id, validatedBody.data);
+  const roadmap = await service.createRoadmap(
+    session.user.id,
+    validatedBody.data,
+  );
   return NextResponse.json(roadmap, { status: 201 });
 }
 
