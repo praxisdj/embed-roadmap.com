@@ -17,8 +17,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ShareRoadmap",
-  description: "Welcome to ShareRoadmap",
+  title: "EmbedRoadmap",
+  description: "Welcome to EmbedRoadmap",
 };
 
 export default function RootLayout({

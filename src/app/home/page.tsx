@@ -134,7 +134,7 @@ export default function HomePage() {
                 <div className="w-4 h-4 bg-primary-foreground rounded"></div>
               </div>
               <h1 className="text-xl font-bold text-foreground">
-                ShareRoadmap
+                EmbedRoadmap
               </h1>
             </div>
 

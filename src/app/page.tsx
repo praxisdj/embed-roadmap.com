@@ -36,7 +36,7 @@ export default function Page() {
                 <div className="w-8 h-8 bg-primary-foreground rounded-lg opacity-90"></div>
               </div>
               <h1 className="text-3xl font-bold text-foreground text-balance">
-                Welcome to ShareRoadmap
+                Welcome to EmbedRoadmap
               </h1>
               <p className="text-muted-foreground">
                 Sign in to continue to your dashboard
