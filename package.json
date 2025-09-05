@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "bun services:up && bun prisma:migrate:dev && next dev -p 3000",
     "build": "bunx prisma generate && next build",
+    "production-build": "bunx prisma generate && bunx prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",

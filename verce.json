@@ -1,0 +1,10 @@
+{
+  "buildCommand": "bun run production-build",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
