@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "bun services:up && bun prisma:migrate:dev && next dev -p 3000",
-    "build": "next build",
+    "build": "bunx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",
@@ -15,6 +15,7 @@
     "services:down": "docker compose --env-file .env -f infra/dev-compose.yaml down",
     "prisma:generate": "bunx prisma generate",
     "prisma:migrate:dev": "bunx prisma migrate dev",
+    "postinstall": "bunx prisma generate",
     "prepare": "husky"
   },
   "prisma": {
