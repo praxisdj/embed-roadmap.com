@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiHandler } from "@/lib/utils/apiHandler";
-import { CreateFeatureSchema, UpdateFeatureSchema } from "@/types/feature.type";
+import { UpdateFeatureSchema } from "@/types/feature.type";
 import { FeatureService } from "@/services/feature.service";
 import { ForbiddenError, ValidationError } from "@/lib/utils/errors";
 import { getServerSession } from "next-auth";

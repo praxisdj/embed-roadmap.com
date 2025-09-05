@@ -27,6 +27,7 @@ const eslintConfig = [
     },
     rules: {
       "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-empty-object-type": "off",
     },
   },
 ];
